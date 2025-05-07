@@ -51,3 +51,8 @@ pub fn echo(arg: &str) {
         )
     }
 }
+
+pub fn echoln(arg: &str) {
+    let arg = format!("{}\n", arg);
+    echo(arg.as_str());
+}

@@ -1,31 +1,43 @@
-use std::env;
+use std::{env, io::{self, Write}, path::PathBuf};
+
+use super::echo;
 
 #[allow(dead_code)]
 pub struct Shell {
     pub history: Vec<String>,
-    pub relative_cwd: String,   // represents the relative path to the current working directory
+    pub home_dir: String,
+    pub current_dir: String,    // represents the current path that will be used for stdout
     pub abs_cwd: String,        // represents the absolute path to the current working directory
 }
 
 impl Shell {
     pub fn new() -> Self {
+        let home_path = dirs::home_dir().unwrap_or_else(|| PathBuf::from("/"));
+        let home_dir = home_path.to_str().unwrap_or("/").to_string();
 
-        let relative_cwd = match dirs::home_dir() {
-            Some(path) => path.to_str().unwrap_or("/").to_string(),
-            None => String::from("/"),
-        };
+        let abs_path = env::current_dir().unwrap_or_else(|_| PathBuf::from("/"));
+        let abs_cwd = abs_path.to_str().unwrap_or("/").to_string();
 
-        let dir = env::current_dir();
-        let abs_cwd = match dir {
-            Ok(path) => path.to_str().unwrap_or("/").to_string(),
-            Err(_) => String::from("/"),
+        // Replace home_dir in abs_cwd with ~ for relative_cwd
+        let relative_cwd = if abs_cwd.starts_with(&home_dir) {
+            abs_cwd.replacen(&home_dir, "~", 1)
+        } else {
+            abs_cwd.clone()
         };
 
         Self {
             history: Vec::new(),
-            relative_cwd,
+            home_dir,
+            current_dir: relative_cwd,
             abs_cwd,
         }
+    }
+
+    pub fn print_prompt(&self) -> io::Result<()> {
+        // printing colors of prompt as inverse of pop-os terminal :)
+        let formatted_prompt = format!("\x1b[1;34mru-shell\x1b[0m: \x1b[1;32m{:#}\x1b[0m$ ", self.current_dir);
+        echo(formatted_prompt.as_str());
+        io::stdout().flush()
     }
 
     pub fn add_to_history(&mut self, command: String) {
@@ -35,6 +47,4 @@ impl Shell {
     pub fn get_history(&self) -> &Vec<String> {
         &self.history
     }
-
-    
 }

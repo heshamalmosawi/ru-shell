@@ -1,5 +1,5 @@
 pub mod echo;
-pub mod pwd;
+pub mod directory_handling;
 
 pub use echo::echo;
 
