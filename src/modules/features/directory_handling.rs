@@ -86,8 +86,7 @@ impl Shell {
         }
 
         // checking path validity
-        path_exists(&abs_dir)
-            .map_err(|_| format!("ru-shell: cd: {}: No such file or directory", abs_dir))?;
+        path_exists_dir(&abs_dir)?;
 
         // if previous abs path is the home,
         self.abs_cwd = abs_dir;
@@ -97,6 +96,11 @@ impl Shell {
     }
 }
 
-pub fn path_exists(path: &str) -> Result<Metadata, std::io::Error> {
-    fs::metadata(path)
+pub fn path_exists_dir(path: &str) -> Result<Metadata, String> {
+    let metadata = fs::metadata(path).map_err(|_| format!("ru-shell: cd: {}: No such file or directory", path))?;
+    if metadata.is_dir() {
+        Ok(metadata)
+    } else {
+        Err(format!("ru-shell: cd: {}: Not a directory", path))
+    }
 }
