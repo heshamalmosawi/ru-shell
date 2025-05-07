@@ -1,3 +1,5 @@
-fn main() {
-    println!("Hello, world!");
+use std::io;
+
+fn main() -> io::Result<()> {
+    ru_shell::boot()
 }
