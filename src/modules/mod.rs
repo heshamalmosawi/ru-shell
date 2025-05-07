@@ -1,5 +1,6 @@
-pub mod echo;
 pub mod startup;
+pub mod shell;
+pub mod features;
 
-pub use echo::{echo, handle_echo_command};
 pub use startup::boot;
+pub use features::{*};

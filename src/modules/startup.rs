@@ -3,7 +3,7 @@ use std::{
     process,
 };
 
-use super::{echo, handle_echo_command};
+use super::{echo, shell::Shell};
 
 fn print_prompt() -> io::Result<()> {
     echo("ru-shell$ ");
@@ -18,6 +18,7 @@ pub fn boot() -> io::Result<()> {
     .expect("Error setting Ctrl-C handler");
 
     let stdin = io::stdin();
+    let inst = Shell::new();
     loop {
         if let Err(e) = print_prompt() {
             echo(format!("Failed to print prompt: {}", e).as_str());
@@ -39,9 +40,9 @@ pub fn boot() -> io::Result<()> {
                 break;
             }
             cmd if cmd.starts_with("echo ") || cmd == "echo" => {
-                handle_echo_command(cmd);
+                Shell::handle_echo_command(cmd);
             }
-            "hello" => echo("Hello, world!"),
+            "pwd" => inst.pwd(),
             _ => echo(format!("{}: command not found", buffer.trim()).as_str()),
         }
     }
