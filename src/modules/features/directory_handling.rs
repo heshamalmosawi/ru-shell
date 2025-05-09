@@ -16,8 +16,6 @@ impl Shell {
         if path.is_empty() {
             self.current_dir = "~".to_string();
             self.abs_cwd = self.home_dir.clone();
-            println!("current dir: {:#}", self.current_dir);
-            println!("abs cwd: {:#}", self.abs_cwd);
         }
 
         // setting the path as a string

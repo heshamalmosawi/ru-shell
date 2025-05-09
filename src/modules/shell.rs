@@ -1,6 +1,4 @@
-use std::{env, io::{self, Write}, path::PathBuf};
-
-use super::echo;
+use std::{env, path::PathBuf};
 
 #[allow(dead_code)]
 pub struct Shell {
@@ -33,11 +31,9 @@ impl Shell {
         }
     }
 
-    pub fn print_prompt(&self) -> io::Result<()> {
+    pub fn get_prompt(&self) -> String {
         // printing colors of prompt as inverse of pop-os terminal :)
-        let formatted_prompt = format!("\x1b[1;34mru-shell\x1b[0m: \x1b[1;32m{:#}\x1b[0m$ ", self.current_dir);
-        echo(formatted_prompt.as_str());
-        io::stdout().flush()
+        format!("\x1b[1;34mru-shell\x1b[0m: \x1b[1;32m{:#}\x1b[0m$ ", self.current_dir)        
     }
 
     pub fn add_to_history(&mut self, command: String) {
