@@ -10,30 +10,8 @@ use crate::shell::Shell;
 */
 
 impl Shell {
-    pub fn handle_echo_command(arg: &str) {
-        // performing sanitization on the input
-        let binding = arg
-            .trim()
-            .split_whitespace()
-            .skip(1)
-            .collect::<Vec<&str>>()
-            .join(" ");
-        let mut arg = binding.as_str();
-
-        if arg.starts_with('"') && arg.ends_with('"') {
-            arg = &arg[1..arg.len() - 1];
-        } else if arg.starts_with('\'') && arg.ends_with('\'') {
-            arg = &arg[1..arg.len() - 1];
-        }
-
-        let sanitized = if (arg.starts_with('"') && arg.ends_with('"'))
-            || (arg.starts_with('\'') && arg.ends_with('\''))
-        {
-            format!("{}\n", &arg[1..arg.len() - 1])
-        } else {
-            format!("{}\n", arg)
-        };
-        echo(sanitized.as_str());
+    pub fn handle_echo_command(args: Vec<String>) {
+        echoln(args.join(" ").as_str());
     }
 }
 

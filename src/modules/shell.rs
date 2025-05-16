@@ -2,6 +2,8 @@ use libc::{STDOUT_FILENO, write};
 use std::ffi::CString;
 use std::{env, path::PathBuf};
 
+use super::echo::echoln;
+
 #[allow(dead_code)]
 pub struct Shell {
     pub history: Vec<String>,
@@ -35,7 +37,7 @@ impl Shell {
 
     pub fn get_prompt(&self) -> String {
         // printing colors of prompt as inverse of pop-os terminal :)
-        format!("\x1b[1;34mru-shell\x1b[0m: \x1b[1;32m{:#}\x1b[0m$ ", self.current_dir)        
+        format!("\x1b[1;34mru-shell\x1b[0m:\x1b[1;32m{:#}\x1b[0m$ ", self.current_dir)        
     }
 
     pub fn add_to_history(&mut self, command: String) {
@@ -55,5 +57,14 @@ impl Shell {
                 clear_screen.as_bytes().len(),
             );
         }
+    }
+
+    pub fn error(&self, msg: &str, show_name: bool) {
+        let message = if show_name {
+            format!("ru-shell: {}", msg)
+        } else {
+            msg.to_string()
+        };
+        echoln(message.as_str());
     }
 }

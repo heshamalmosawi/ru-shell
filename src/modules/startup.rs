@@ -1,7 +1,7 @@
 use std::io::{self};
 use rustyline::Editor;
 
-use super::{echo::echoln, shell::Shell};
+use super::{echo::echoln, parse_args, shell::Shell};
 
 pub fn boot() -> io::Result<()> {
 
@@ -15,15 +15,29 @@ pub fn boot() -> io::Result<()> {
                 }
                 let _ = rl.add_history_entry(line.clone());
 
-                match line.trim() {
+                // splitting the line into command and arguments
+                let parts: Vec<&str> = line.split_whitespace().collect();
+                let command : &str = parts[0];
+                let args = match parse_args(&line[command.len()..]) {
+                    Ok(parsed_args) => parsed_args,
+                    Err(e) => {
+                        inst.error(&e.to_string(), true);
+                        continue;
+                    }
+                };
+
+
+                match command {
                     "exit" => {
                         break;
                     }
-                    cmd if cmd.starts_with("echo ") || cmd == "echo" => {
-                        Shell::handle_echo_command(cmd);
-                    }
-                    cmd if cmd.starts_with("cd ") || cmd == "cd" => {
-                        let path = if cmd == "cd" { "" } else { &cmd[3..] };
+                   "echo" => Shell::handle_echo_command(args),
+                    "cd" => {
+                        if args.len() > 1 {
+                            inst.error("cd: too many arguments", true);
+                            continue;
+                        }
+                        let path = if !args.is_empty() { args[0].trim() } else { "" };
                         let res = inst.cd(path);
                         if let Err(e) = res {
                             echoln(e.as_str());
@@ -31,7 +45,7 @@ pub fn boot() -> io::Result<()> {
                     }
                     "pwd" => inst.pwd(),
                     "clear" => inst.clear(),
-                    _ => echoln(format!("{}: command not found", line.trim()).as_str()),
+                    _ => inst.error(format!("{}: command not found", line.trim()).as_str(), false),
                 }
             }
             Err(rustyline::error::ReadlineError::Interrupted) => {
@@ -43,7 +57,7 @@ pub fn boot() -> io::Result<()> {
                 break;
             }
             Err(e) => {
-                echoln(format!("Error reading line: {}", e).as_str());
+                inst.error(&e.to_string(), false);
                 continue;
             }
         }
