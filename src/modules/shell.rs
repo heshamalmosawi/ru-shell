@@ -1,3 +1,5 @@
+use libc::{STDOUT_FILENO, write};
+use std::ffi::CString;
 use std::{env, path::PathBuf};
 
 #[allow(dead_code)]
@@ -42,5 +44,16 @@ impl Shell {
 
     pub fn get_history(&self) -> &Vec<String> {
         &self.history
+    }
+
+    pub fn clear(&self) {
+        let clear_screen = CString::new("\x1B[2J\x1B[H").unwrap();
+        unsafe {
+            write(
+                STDOUT_FILENO,
+                clear_screen.as_ptr() as *const _,
+                clear_screen.as_bytes().len(),
+            );
+        }
     }
 }

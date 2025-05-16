@@ -30,6 +30,7 @@ pub fn boot() -> io::Result<()> {
                         }
                     }
                     "pwd" => inst.pwd(),
+                    "clear" => inst.clear(),
                     _ => echoln(format!("{}: command not found", line.trim()).as_str()),
                 }
             }
