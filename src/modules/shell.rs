@@ -49,7 +49,7 @@ impl Shell {
     }
 
     pub fn clear(&self) {
-        let clear_screen = CString::new("\x1B[2J\x1B[H").unwrap();
+        let clear_screen = CString::new("\x1B[2J\x1B[H").expect("CString::new failed");
         unsafe {
             write(
                 STDOUT_FILENO,
