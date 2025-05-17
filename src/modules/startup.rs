@@ -45,6 +45,7 @@ pub fn boot() -> io::Result<()> {
                     }
                     "pwd" => inst.pwd(),
                     "ls" => inst.handle_ls_command(args),
+                    "cat" => inst.handle_cat_command(args),
                     "clear" => inst.clear(),
                     _ => inst.error(format!("{}: command not found", line.trim()).as_str(), false),
                 }
