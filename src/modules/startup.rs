@@ -48,6 +48,8 @@ pub fn boot() -> io::Result<()> {
                     "cat" => inst.handle_cat_command(args),
                     "cp" => inst.handle_copy_command(args),
                     "mv" => inst.handle_move_command(args),
+                    "mkdir" => inst.handle_mkdir_command(args),
+                    "rm" => inst.handle_rm_command(args),
                     "clear" => inst.clear(),
                     _ => inst.error(format!("{}: command not found", line.trim()).as_str(), false),
                 }
