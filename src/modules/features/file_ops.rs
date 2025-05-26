@@ -26,8 +26,10 @@ impl Shell {
 
         // Last argument is the destination
         let dest_path = &paths[paths.len() - 1];
-        let destination_str = if dest_path.starts_with("/") || dest_path.starts_with("~") {
+        let destination_str = if dest_path.starts_with("/") {
             dest_path.to_string()
+        } else if dest_path.starts_with("~") {
+            dest_path.replace("~", &self.home_dir)
         } else {
             format!("{}/{}", self.abs_cwd, dest_path)
         };
@@ -36,8 +38,10 @@ impl Shell {
         let source_paths: Vec<String> = paths[0..paths.len() - 1]
             .iter()
             .map(|source| {
-                if source.starts_with("/") || source.starts_with("~") {
+                if source.starts_with("/") {
                     source.to_string()
+                } else if source.starts_with("~") {
+                    source.replace("~", &self.home_dir)
                 } else {
                     format!("{}/{}", self.abs_cwd, source)
                 }
@@ -165,8 +169,10 @@ impl Shell {
 
         // Last argument is the destination
         let dest_path = &args[args.len() - 1];
-        let destination_str = if dest_path.starts_with("/") || dest_path.starts_with("~") {
+        let destination_str = if dest_path.starts_with("/") {
             dest_path.to_string()
+        } else if dest_path.starts_with("~") {
+            dest_path.replace("~", &self.home_dir)
         } else {
             format!("{}/{}", self.abs_cwd, dest_path)
         };
@@ -177,8 +183,10 @@ impl Shell {
         let source_paths: Vec<String> = args[0..args.len() - 1]
             .iter()
             .map(|source| {
-                if source.starts_with("/") || source.starts_with("~") {
+                if source.starts_with("/") {
                     source.to_string()
+                } else if source.starts_with("~") {
+                    source.replace("~", &self.home_dir)
                 } else {
                     format!("{}/{}", self.abs_cwd, source)
                 }

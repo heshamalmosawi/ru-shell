@@ -12,11 +12,14 @@ impl Shell {
         }
 
         for arg in args {
-            let file_name_str = if arg.starts_with('~') || arg.starts_with('/') {
+            let file_name_str = if arg.starts_with('/') {
                 arg.clone()
+            } else if arg.starts_with("~") {
+                arg.replace("~", &self.home_dir)
             } else {
                 format!("{}/{}", self.abs_cwd, arg)
             };
+
             let path = Path::new(&file_name_str);
             if !path.exists() {
                 self.error(format!("cat: {}: No such file or directory", arg).as_str(), false);
