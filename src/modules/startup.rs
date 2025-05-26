@@ -7,6 +7,11 @@ pub fn boot() -> io::Result<()> {
 
     let mut rl = Editor::<(), _>::new().unwrap();
     let mut inst = Shell::new();
+    // load history if it exists
+    if let Err(e) = rl.load_history(&inst.history_file_path()) {
+        echoln(&format!("Error loading history: {}", e));
+    }
+
     loop {
         match rl.readline(inst.get_prompt().as_str()) {
             Ok(line) => {
@@ -14,7 +19,7 @@ pub fn boot() -> io::Result<()> {
                     continue;
                 }
                 let _ = rl.add_history_entry(line.clone());
-
+                inst.add_to_history(line.clone());
                 // splitting the line into command and arguments
                 let parts: Vec<&str> = line.split_whitespace().collect();
                 let command : &str = parts[0];

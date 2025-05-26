@@ -1,6 +1,6 @@
 use libc::{STDOUT_FILENO, write};
 use std::ffi::CString;
-use std::{env, path::PathBuf};
+use std::{env, fs::{File, OpenOptions}, io::{self, BufRead, BufReader, Write}, path::PathBuf};
 
 use super::echo::echoln;
 
@@ -27,12 +27,18 @@ impl Shell {
             abs_cwd.clone()
         };
 
-        Self {
+        let mut res = Self {
             history: Vec::new(),
             home_dir,
             current_dir: relative_cwd,
             abs_cwd,
-        }
+        };
+
+        res.load_history().unwrap_or_else(|e| {
+            echoln(&format!("Error loading history: {}", e));
+        });
+
+        res
     }
 
     pub fn get_prompt(&self) -> String {
@@ -40,8 +46,48 @@ impl Shell {
         format!("\x1b[1;34mru-shell\x1b[0m:\x1b[1;32m{:#}\x1b[0m$ ", self.current_dir)        
     }
 
+    pub fn history_file_path(&self) -> PathBuf {
+        PathBuf::from(&self.home_dir).join(".rushistory")
+    }
+    
+    pub fn load_history(&mut self) -> io::Result<()> {
+        let history_path = self.history_file_path();
+        
+        if !history_path.exists() {
+            // Create the file if it doesn't exist
+            File::create(&history_path)?;
+            return Ok(());
+        }
+        
+        let file = File::open(history_path)?;
+        let reader = BufReader::new(file);
+        
+        for line in reader.lines() {
+            if let Ok(command) = line {
+                if !command.trim().is_empty() {
+                    self.history.push(command);
+                }
+            }
+        }
+        
+        Ok(())
+    }
+    
     pub fn add_to_history(&mut self, command: String) {
-        self.history.push(command);
+        if command.trim().is_empty() {
+            return;
+        }
+        
+        self.history.push(command.clone());
+        
+        // append to history file
+        if let Ok(mut file) = OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(self.history_file_path())
+        {
+            let _ = writeln!(file, "{}", command);
+        }
     }
 
     pub fn get_history(&self) -> &Vec<String> {
