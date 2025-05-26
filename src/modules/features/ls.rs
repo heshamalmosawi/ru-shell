@@ -46,8 +46,10 @@ impl Shell {
             }
             let path_to_list = if path == "." {
                 self.abs_cwd.clone()
-            } else {
+            } else if path.starts_with("/") || path.starts_with("~") {
                 path.to_string()
+            } else {
+                format!("{}/{}", self.abs_cwd, path)
             };
 
             let listings = match list_directory(&path_to_list, flags.clone()) {
